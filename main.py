@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from pprint import pprint
 import discord
 
+# connect to MongoDB server and Discord client
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 MONGO_PASSWORD = os.getenv('MONGO_PASSWORD')
@@ -28,9 +29,13 @@ async def on_message(message):
     if message.guild is None: return
     channel = str(message.channel.name)
     print(message)
+    # add 'and discord.utils.get(message.author.roles, name=role_name) is None'
     if channel == 'general':
+        role_name = 'Something'
         if message.content == '!verify':
             user_query = {"id": message.author.id}
+            # assign messenger role
+            await message.author.add_roles(discord.utils.get(message.guild.roles, name=role_name))
             ieee_user_db.update_one(user_query, update_verified_status)
             await message.author.send(f'Hello, {username}!\n'
                                       f'Your SSH login is is: ```Username: \n'
