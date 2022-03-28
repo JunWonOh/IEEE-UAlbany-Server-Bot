@@ -1,5 +1,6 @@
 import os
 
+import secrets
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from pprint import pprint
@@ -26,6 +27,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     username = str(message.author).split('#')[0]
+    tag = str(message.author).split('#')[1]
     if message.guild is None: return
     channel = str(message.channel.name)
     print(message)
@@ -33,13 +35,24 @@ async def on_message(message):
     if channel == 'general':
         role_name = 'Something'
         if message.content == '!verify':
-            user_query = {"id": message.author.id}
+            user_query = {"discord_id": str(message.author.id)}
+            print('id: ' + str(message.author.id))
             # assign messenger role
             await message.author.add_roles(discord.utils.get(message.guild.roles, name=role_name))
+            ubuntu_username = username.lower().replace(" ", "") + tag
+            ubuntu_password = secrets.token_hex(16)
+            # ubuntu create user
+            await os.system(f'sudo useradd -m {ubuntu_username}')
+            await os.system(f'sudo passwd {ubuntu_username}')
+            # 2x - once to set and once to verify
+            await os.system(f'{ubuntu_password}')
+            await os.system(f'{ubuntu_password}')
+
+            # update on the database that user has been verified
             ieee_user_db.update_one(user_query, update_verified_status)
             await message.author.send(f'Hello, {username}!\n'
-                                      f'Your SSH login is is: ```Username: \n'
-                                      f'Password:```\n'
+                                      f'Your SSH login is: ```Username: {ubuntu_username}\n'
+                                      f'Password: {ubuntu_password}```\n'
                                       f'Please do not share this with anyone!')
 
 client.run(TOKEN)
