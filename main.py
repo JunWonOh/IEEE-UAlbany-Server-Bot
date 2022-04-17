@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from pprint import pprint
 import discord
+import subprocess
 
 # connect to MongoDB server and Discord client
 load_dotenv()
@@ -46,26 +47,16 @@ async def on_message(message):
             ubuntu_password = secrets.token_hex(16)
             print(f'generated username and password for {username}')
 
-            # create user on server with m flag to create respective directory
+            # create user on server with m flag to create respective directory and p flag to set their password
             print(f'creating user {username} in server...')
-            os.system(f'sudo useradd -m {ubuntu_username}')
-
-            # set password for user
-            os.system(f'sudo passwd {ubuntu_username}')
-            # enter sudo account password
-            print('giving bot sudo permissions...')
-            os.system(f'{SUDO_PASSWORD}')
-            # 2x - once to set and once to verify
-            print(f'setting user password {username} in server...')
-            os.system(f'{ubuntu_password}')
-            print(f'verifying user password {username} in server...')
-            os.system(f'{ubuntu_password}')
+            os.system(f'sudo useradd -m -p $(openssl passwd -1 {ubuntu_password}) {ubuntu_username}')
 
             # set up user's conda environment
             print(f'creating and setting conda environment for {username}...')
-            os.system(f'cd /home/{ubuntu_username}')
-            os.system(f'conda create -n {ubuntu_username}')
-            os.system(f'conda activate {ubuntu_username}')
+            create_env = f'conda create -n {ubuntu_username}'.split()
+            activate_env = f'conda activate {ubuntu_username}'.split()
+            subprocess.Popen(create_env, shell=True).wait()
+            subprocess.Popen(activate_env, shell=True).wait()
 
             # edit user bashrc to load conda venv on ssh login
             print(f'setting bashscript for {username}...')
