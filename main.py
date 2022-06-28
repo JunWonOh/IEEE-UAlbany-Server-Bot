@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from pprint import pprint
 import discord
 # import urllib.parse
-# import subprocess
+import subprocess
 
 # connect to MongoDB server and Discord client
 load_dotenv()
@@ -60,17 +60,17 @@ async def on_message(message):
             print(f'[IEEE Server Bot]: user {username} has been created')
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
-            # print(f'creating and setting conda environment for {username}...')
-            # create_env = f'conda create -n {ubuntu_username}'.split()
-            # activate_env = f'conda activate {ubuntu_username}'.split()
-            # subprocess.Popen(create_env, shell=True).wait()
-            # subprocess.Popen(activate_env, shell=True).wait()
+            print(f'creating and setting conda environment for {username}...')
+            create_env = f'conda create -n {ubuntu_username}'.split()
+            activate_env = f'conda activate {ubuntu_username}'.split()
+            subprocess.Popen(create_env, shell=True).wait()
+            subprocess.Popen(activate_env, shell=True).wait()
             # edit user bashrc to load conda venv on ssh login
-            # print(f'setting bashscript for {username}...')
-            # os.system(f'cd /home/{ubuntu_username} && '
-            #           f'echo \'if [[ -n $SSH_CONNECTION ]] ; then \n '
-            #           f'conda activate {ubuntu_username} \n '
-            #           f'fi\' >> .bashrc')
+            print(f'setting bashscript for {username}...')
+            os.system(f'cd /home/{ubuntu_username} && '
+                      f'echo \'if [[ -n $SSH_CONNECTION ]] ; then \n '
+                      f'conda activate {ubuntu_username} \n '
+                      f'fi\' >> .bashrc')
 
             # update on the database that user has been verified
             ieee_user_db.update_one(user_query, update_verified_status)
