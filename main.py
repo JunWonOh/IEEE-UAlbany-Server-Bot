@@ -59,7 +59,7 @@ async def on_message(message):
 
             # create user on server with m flag to create respective directory and p flag to set their password
             print(f'[IEEE Server Bot]: creating user {username} in server...')
-            os.system('echo %s|sudo -S %s' % (MONGO_PASSWORD, f'useradd -m -p $(openssl passwd -1 {ubuntu_password}) {ubuntu_username}'))
+            os.system('echo %s|sudo -S %s' % (SUDO_PASSWORD, f'useradd -m -p $(openssl passwd -1 {ubuntu_password}) {ubuntu_username}'))
             print(f'[IEEE Server Bot]: user {username} has been created')
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
