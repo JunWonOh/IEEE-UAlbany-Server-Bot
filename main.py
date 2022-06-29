@@ -14,7 +14,8 @@ TOKEN = os.getenv('TOKEN')
 MONGO_PASSWORD = os.getenv('MONGO_PASSWORD')
 SUDO_PASSWORD = os.getenv('SUDO_PASSWORD')
 client = discord.Client()
-mongo_client = MongoClient('mongodb+srv://ieeeserver:'f'{MONGO_PASSWORD}''@cluster0.v7iyp.mongodb.net/ieeeserverDB?retryWrites=true&w=majority')
+mongo_client = MongoClient('mongodb+srv://ieeeserver:'f'{MONGO_PASSWORD}'
+                           '@cluster0.v7iyp.mongodb.net/ieeeserverDB?retryWrites=true&w=majority')
 # username = urllib.parse.quote_plus(os.getenv('USERNAME'))
 # password = urllib.parse.quote_plus(os.getenv('PASSWORD'))
 # mongo_client = MongoClient('mongodb://%s:%s@localhost:27017/ieeeserverDB' % (username, password))
@@ -45,7 +46,8 @@ async def on_message(message):
             # if the user is not registered in the website, alert the user of this. end the function.
             if ieee_user_db.find_one({"discord_id": str(message.author.id)}) is None:
                 await message.channel.send(
-                    f'Hi {username}! You must first connect your Discord account here before verifying: https://ieeeualbany.org/server')
+                    f'Hi {username}! You must first connect your Discord account here '
+                    f'before verifying: https://ieeeualbany.org/server')
                 return
             print(f'[IEEE Server Bot]: {username} (id: {message.author.id}) is requesting verification')
             user_query = {"discord_id": str(message.author.id)}
@@ -65,8 +67,8 @@ async def on_message(message):
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
             print(f'creating and setting conda environment for {username}...')
-            os.system(f'conda create -n {ubuntu_username}')
-            os.system(f'conda activate {ubuntu_username}')
+            os.system(f'/usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username}')
+            os.system(f'/usr/local/bin/anaconda3/bin/conda activate {ubuntu_username}')
             # create_env = f'conda create -n {ubuntu_username}'.split()
             # activate_env = f'conda activate {ubuntu_username}'.split()
             # subprocess.Popen(create_env, shell=True).wait()
@@ -74,7 +76,8 @@ async def on_message(message):
             # edit user bashrc to load conda venv on ssh login
             print(f'setting bashscript for {username}...')
             os.system(f'cd /home/{ubuntu_username} && '
-                      'echo \'if [[ -n $SSH_CONNECTION ]] ; then\nconda activate {ubuntu_username}\nconda activate {ubuntu_username}\nfi\' >> .bashrc')
+                      'echo \'if [[ -n $SSH_CONNECTION ]] ; then\n/usr/local/bin/anaconda3/bin/conda activate '
+                      '{ubuntu_username}\nfi\' >> .bashrc')
 
             # update on the database that user has been verified
             ieee_user_db.update_one(user_query, update_verified_status)
