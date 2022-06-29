@@ -43,7 +43,7 @@ async def on_message(message):
             if message.guild is None: return
             print(message)
             # if the user is not registered in the website, alert the user of this. end the function.
-            if ieee_user_db.find_one({"discord_id": message.author.id}) is None:
+            if ieee_user_db.find_one({"discord_id": str(message.author.id)}) is None:
                 await message.channel.send(
                     f'Hi {username}! You must first connect your Discord account here before verifying: https://ieeeualbany.org/server')
                 return
