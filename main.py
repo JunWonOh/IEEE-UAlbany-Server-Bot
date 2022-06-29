@@ -32,18 +32,19 @@ async def on_ready():
 @client.event
 async def on_message(message):
     username = str(message.author).split('#')[0]
-    tag = str(message.author).split('#')[1]
-    if message.guild is None: return
     channel = str(message.channel.name)
-    print(message)
-    # if the user is not registered in the website, alert the user of this. end the function.
-    if ieee_user_db.find_one({"discord_id": message.author.id}) is None:
-        await message.channel.send(f'Hi {username}! You must first connect your Discord account here before verifying: ')
-        return
     role_name = 'Server Contributor'
     # if bot is in the right channel and the user doesn't have the Server Contributor role..
     if channel == 'bot-spam' and discord.utils.get(message.author.roles, name=role_name) is None:
         if message.content == '!verify':
+            tag = str(message.author).split('#')[1]
+            if message.guild is None: return
+            print(message)
+            # if the user is not registered in the website, alert the user of this. end the function.
+            if ieee_user_db.find_one({"discord_id": message.author.id}) is None:
+                await message.channel.send(
+                    f'Hi {username}! You must first connect your Discord account here before verifying: ')
+                return
             print(f'[IEEE Server Bot]: {username} (id: {message.author.id}) is requesting verification')
             user_query = {"discord_id": str(message.author.id)}
             # assign messenger role
