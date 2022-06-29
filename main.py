@@ -67,12 +67,10 @@ async def on_message(message):
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
             print(f'creating and setting conda environment for {username}...')
-            os.system(f'/usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username}')
+            create_env = f'/usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username}'.split()
+            process = subprocess.Popen(create_env, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE).wait()
+            stdout, stderr = process.communicate(input='y\n')
             os.system(f'/usr/local/bin/anaconda3/bin/conda activate {ubuntu_username}')
-            # create_env = f'conda create -n {ubuntu_username}'.split()
-            # activate_env = f'conda activate {ubuntu_username}'.split()
-            # subprocess.Popen(create_env, shell=True).wait()
-            # subprocess.Popen(activate_env, shell=True).wait()
             # edit user bashrc to load conda venv on ssh login
             print(f'setting bashscript for {username}...')
             os.system(f'cd /home/{ubuntu_username} && '
