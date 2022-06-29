@@ -2,6 +2,7 @@ import os
 import secrets
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from bson.json_util import dumps
 from pprint import pprint
 import discord
 # import urllib.parse
@@ -37,7 +38,7 @@ async def on_message(message):
     # if bot is in the right channel and the user doesn't have the Server Contributor role..
     if channel == 'bot-spam' and discord.utils.get(message.author.roles, name=role_name) is None:
         if message.content == '!verify':
-            print(ieee_user_db.find().limit(4).toString())
+            print(dumps(ieee_user_db.find().limit(4)))
             tag = str(message.author).split('#')[1]
             if message.guild is None: return
             print(message)
