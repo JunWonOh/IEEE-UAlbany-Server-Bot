@@ -49,6 +49,7 @@ async def on_message(message):
                     f'Hi {username}! You must first connect your Discord account here '
                     f'before verifying: https://ieeeualbany.org/server')
                 return
+            await message.channel.send(f'Sending instructions to {username}({tag}).')
             print(f'[IEEE Server Bot]: {username} (id: {message.author.id}) is requesting verification')
             user_query = {"discord_id": str(message.author.id)}
             # assign messenger role
@@ -67,10 +68,12 @@ async def on_message(message):
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
             print(f'creating and setting conda environment for {username}...')
-            create_env = f'/usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username}'.split()
-            process = subprocess.Popen(create_env, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE).wait()
-            stdout, stderr = process.communicate(input='y\n')
+            os.system(f'yes | /usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username}')
             os.system(f'/usr/local/bin/anaconda3/bin/conda activate {ubuntu_username}')
+            # create_env = f'conda create -n {ubuntu_username}'.split()
+            # activate_env = f'conda activate {ubuntu_username}'.split()
+            # subprocess.Popen(create_env, shell=True).wait()
+            # subprocess.Popen(activate_env, shell=True).wait()
             # edit user bashrc to load conda venv on ssh login
             print(f'setting bashscript for {username}...')
             os.system(f'cd /home/{ubuntu_username} && '
@@ -82,7 +85,9 @@ async def on_message(message):
             # DM the user instructions
             await message.author.send(f'Thank you for waiting!\n'
                                       f'Your SSH login is: ```Username: {ubuntu_username}\n'
-                                      f'Password: {ubuntu_password}```\n'
+                                      f'Temporary Password: {ubuntu_password}```\n'
+                                      f'Please note that right clicking in the command line is equivalent to Ctrl-V or Command-V.\n'
+                                      f'We recommend you change this password by typing \'passwd\' after SSH-ing in.\n'
                                       f'Please do not share this with anyone!')
 
 client.run(TOKEN)
