@@ -16,9 +16,7 @@ SUDO_PASSWORD = os.getenv('SUDO_PASSWORD')
 client = discord.Client()
 mongo_client = MongoClient('mongodb+srv://ieeeserver:'f'{MONGO_PASSWORD}'
                            '@cluster0.v7iyp.mongodb.net/ieeeserverDB?retryWrites=true&w=majority')
-# username = urllib.parse.quote_plus(os.getenv('USERNAME'))
-# password = urllib.parse.quote_plus(os.getenv('PASSWORD'))
-# mongo_client = MongoClient('mongodb://%s:%s@localhost:27017/ieeeserverDB' % (username, password))
+
 db = mongo_client.admin
 serverStatusResult = db.command("serverStatus")
 pprint(serverStatusResult)
@@ -49,7 +47,7 @@ async def on_message(message):
                     f'Hi {username}! You must first connect your Discord account here '
                     f'before verifying: https://ieeeualbany.org/server')
                 return
-            await message.channel.send(f'Sending instructions to {username}({tag}).')
+            await message.channel.send(f'Sending instructions to {username}(#{tag}).')
             print(f'[IEEE Server Bot]: {username} (id: {message.author.id}) is requesting verification')
             user_query = {"discord_id": str(message.author.id)}
             # assign messenger role
@@ -68,17 +66,16 @@ async def on_message(message):
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
             print(f'creating and setting conda environment for {username}...')
-            os.system(f'yes | /usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username}')
+            os.system(f'/usr/local/bin/anaconda3/bin/conda create -n {ubuntu_username} -y')
             os.system(f'/usr/local/bin/anaconda3/bin/conda activate {ubuntu_username}')
-            # create_env = f'conda create -n {ubuntu_username}'.split()
-            # activate_env = f'conda activate {ubuntu_username}'.split()
-            # subprocess.Popen(create_env, shell=True).wait()
-            # subprocess.Popen(activate_env, shell=True).wait()
+
             # edit user bashrc to load conda venv on ssh login
             print(f'setting bashscript for {username}...')
             os.system(f'cd /home/{ubuntu_username} && '
-                      'echo \'if [[ -n $SSH_CONNECTION ]] ; then\n/usr/local/bin/anaconda3/bin/conda activate '
-                      '{ubuntu_username}\nfi\' >> .bashrc')
+                      'echo \'if [[ -n $SSH_CONNECTION ]] ; then\n'
+                      '. /usr/local/bin/anaconda3/etc/profile.d/conda.sh\n'
+                      f'conda activate {ubuntu_username}\n'
+                      'fi\' >> .bashrc')
 
             # update on the database that user has been verified
             ieee_user_db.update_one(user_query, update_verified_status)
@@ -88,6 +85,6 @@ async def on_message(message):
                                       f'Temporary Password: {ubuntu_password}```\n'
                                       f'Please note that right clicking in the command line is equivalent to Ctrl-V or Command-V.\n'
                                       f'We recommend you change this password by typing \'passwd\' after SSH-ing in.\n'
-                                      f'Please do not share this with anyone!')
+                                      f'Please do not share this password with anyone!')
 
 client.run(TOKEN)
