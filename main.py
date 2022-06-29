@@ -59,7 +59,8 @@ async def on_message(message):
 
             # create user on server with m flag to create respective directory and p flag to set their password
             print(f'[IEEE Server Bot]: creating user {username} in server...')
-            os.system('echo %s|sudo -S %s' % (SUDO_PASSWORD, f'useradd -m -p $(openssl passwd -1 {ubuntu_password}) {ubuntu_username}'))
+            os.system('echo %s|sudo -S %s' % (SUDO_PASSWORD, '-s'))
+            os.system(f'useradd -m -p $(openssl passwd -1 {ubuntu_password}) {ubuntu_username}')
             print(f'[IEEE Server Bot]: user {username} has been created')
 
             # set up user's conda environment (commented out - implementation moved to adduser.local script)
@@ -71,7 +72,7 @@ async def on_message(message):
             # edit user bashrc to load conda venv on ssh login
             print(f'setting bashscript for {username}...')
             os.system(f'cd /home/{ubuntu_username} && '
-                      f'echo %s|sudo -S %s' % (SUDO_PASSWORD, 'echo \'if [[ -n $SSH_CONNECTION ]] ; then\nconda activate {ubuntu_username}\nconda activate {ubuntu_username}\nfi\' >> .bashrc'))
+                      'echo \'if [[ -n $SSH_CONNECTION ]] ; then\nconda activate {ubuntu_username}\nconda activate {ubuntu_username}\nfi\' >> .bashrc')
 
             # update on the database that user has been verified
             ieee_user_db.update_one(user_query, update_verified_status)
